@@ -7,6 +7,7 @@
 //!
 //! Pair with the `receive_reassemble` example (run the receiver first).
 
+use std::io::ErrorKind;
 use std::net::{Ipv4Addr, SocketAddr, UdpSocket};
 
 use ponk_protocol::{
@@ -22,13 +23,18 @@ fn main() -> std::io::Result<()> {
     // With the default unspecified address the operating system picks the
     // egress interface from its routing metrics. On Windows a Wi-Fi interface
     // frequently loses that selection, so multicast never leaves the machine
-    // over WLAN. Binding to the interface's own IPv4 address pins egress to it,
-    // mirroring the local-address field on TouchDesigner's UDP operators.
+    // over WLAN. Binding to the interface's own IPv4 address reliably steers
+    // egress there on Windows, mirroring the local-address field on
+    // TouchDesigner's UDP operators.
     //
-    // Socket ownership stays with the application, so this policy lives in the
-    // example rather than the codec. An application needing the `IP_MULTICAST_IF`
-    // socket option directly can reach for `socket2` or the platform APIs.
-    let interface = interface_from_args();
+    // This is not a general guarantee: binding a local unicast source address
+    // is not the same as `IP_MULTICAST_IF`. On Linux (and other platforms) the
+    // routing table and `IP_MULTICAST_IF` govern multicast egress, so the bound
+    // address is only a hint there. Socket ownership stays with the application,
+    // so this policy lives in the example rather than the codec. An application
+    // needing the `IP_MULTICAST_IF` socket option directly can reach for
+    // `socket2` or the platform APIs.
+    let interface = interface_from_args()?;
 
     let socket = UdpSocket::bind((interface, 0))?;
     socket.set_multicast_ttl_v4(1)?;
@@ -78,14 +84,17 @@ fn main() -> std::io::Result<()> {
 
 /// Read an optional interface IPv4 address from the first CLI argument.
 ///
-/// Falls back to the unspecified address (all interfaces) when absent, and
-/// warns but keeps the fallback when the argument does not parse.
-fn interface_from_args() -> Ipv4Addr {
+/// Falls back to the unspecified address (all interfaces) when absent. A
+/// present-but-unparsable argument is a hard error, since silently reverting
+/// to the default would defeat the point of selecting an interface.
+fn interface_from_args() -> std::io::Result<Ipv4Addr> {
     match std::env::args().nth(1) {
-        None => Ipv4Addr::UNSPECIFIED,
-        Some(arg) => arg.parse().unwrap_or_else(|_| {
-            eprintln!("invalid interface address {arg:?}; using all interfaces");
-            Ipv4Addr::UNSPECIFIED
+        None => Ok(Ipv4Addr::UNSPECIFIED),
+        Some(arg) => arg.parse().map_err(|_| {
+            std::io::Error::new(
+                ErrorKind::InvalidInput,
+                format!("invalid interface address {arg:?}"),
+            )
         }),
     }
 }

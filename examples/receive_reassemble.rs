@@ -21,7 +21,7 @@ fn main() -> std::io::Result<()> {
     // loses that selection, so multicast is never received over WLAN. Passing
     // the interface's own IPv4 address joins the group on that interface,
     // mirroring the local-address field on TouchDesigner's UDP operators.
-    let interface = interface_from_args();
+    let interface = interface_from_args()?;
 
     let group = Ipv4Addr::from(MULTICAST_ADDR);
     let socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, DEFAULT_PORT))?;
@@ -63,14 +63,17 @@ fn main() -> std::io::Result<()> {
 
 /// Read an optional interface IPv4 address from the first CLI argument.
 ///
-/// Falls back to the unspecified address (all interfaces) when absent, and
-/// warns but keeps the fallback when the argument does not parse.
-fn interface_from_args() -> Ipv4Addr {
+/// Falls back to the unspecified address (all interfaces) when absent. A
+/// present but unparseable argument is a hard error, so a typo cannot silently
+/// revert to the default interface the example exists to override.
+fn interface_from_args() -> std::io::Result<Ipv4Addr> {
     match std::env::args().nth(1) {
-        None => Ipv4Addr::UNSPECIFIED,
-        Some(arg) => arg.parse().unwrap_or_else(|_| {
-            eprintln!("invalid interface address {arg:?}; using all interfaces");
-            Ipv4Addr::UNSPECIFIED
+        None => Ok(Ipv4Addr::UNSPECIFIED),
+        Some(arg) => arg.parse().map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("invalid interface address {arg:?}"),
+            )
         }),
     }
 }
