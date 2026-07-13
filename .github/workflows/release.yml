@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  ci:
+    name: Run CI
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish to crates.io
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Install stable Rust
+        run: rustup toolchain install stable --profile minimal
+      - name: Verify version matches tag
+        shell: bash
+        run: |
+          cargo_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          tag_version=${GITHUB_REF#refs/tags/v}
+          if [[ "$cargo_version" != "$tag_version" ]]; then
+            echo "Cargo.toml version ($cargo_version) does not match tag (v$tag_version)" >&2
+            exit 1
+          fi
+      - name: Publish to crates.io
+        run: cargo +stable publish --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  github-release:
+    name: Create GitHub release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
+        with:
+          generate_release_notes: true

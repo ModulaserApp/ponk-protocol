@@ -1,6 +1,7 @@
 # ponk-protocol
 
 [![CI](https://github.com/ModulaserApp/ponk-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/ModulaserApp/ponk-protocol/actions/workflows/ci.yml)
+[![Crates.io](https://img.shields.io/crates/v/ponk-protocol.svg)](https://crates.io/crates/ponk-protocol)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![MSRV 1.88](https://img.shields.io/badge/MSRV-1.88-orange.svg)](#minimum-supported-rust-version)
 
@@ -14,14 +15,18 @@ This crate is an independent Rust implementation published by the Modulaser proj
 
 ## Installation
 
-The crate is currently distributed from GitHub, not crates.io:
+Add the crate to your project:
+
+```sh
+cargo add ponk-protocol
+```
+
+Or add it to `Cargo.toml`:
 
 ```toml
 [dependencies]
-ponk-protocol = { git = "https://github.com/ModulaserApp/ponk-protocol", branch = "main" }
+ponk-protocol = "0.1"
 ```
-
-For an application or library, pin an immutable commit with `rev = "…"` or commit the resolved revision in `Cargo.lock`.
 
 The crate uses only the Rust standard library.
 

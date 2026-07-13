@@ -31,6 +31,19 @@ cargo publish --dry-run
 
 Keep the crate zero-dependency unless a dependency removes more risk than it adds. Explain any proposed dependency, including maintenance, license, MSRV, supply-chain, binary-size, and compile-time effects.
 
+## Releases
+
+Install [`cargo-release`](https://github.com/crate-ci/cargo-release), then prepare and publish a release from a clean `main` branch:
+
+```sh
+cargo release <version>
+cargo release <version> --execute
+```
+
+The first command previews the release. The second updates the version and lockfile, commits the change, creates a `v<version>` tag, and pushes the commit and tag. The tag starts `.github/workflows/release.yml`, which runs CI, verifies that the tag matches `Cargo.toml`, publishes to crates.io, and creates the GitHub release.
+
+The repository must have a `CARGO_REGISTRY_TOKEN` Actions secret with permission to publish `ponk-protocol`.
+
 ## Pull requests
 
 - Keep each pull request focused on one change.
