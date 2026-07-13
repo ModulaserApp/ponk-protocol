@@ -4,8 +4,6 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-07-13
-
 ### Added
 
 - Zero-dependency encoding and decoding for PONK UDP datagrams.
@@ -16,5 +14,4 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 - Canonical wire-vector, malformed-input, boundary, round-trip, and resource-bound tests.
 - Socket-free round-trip plus multicast sender and receiver examples.
 
-[Unreleased]: https://github.com/ModulaserApp/ponk-protocol/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/ModulaserApp/ponk-protocol/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ModulaserApp/ponk-protocol/commits/main
