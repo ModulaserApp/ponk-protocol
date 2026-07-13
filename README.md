@@ -212,6 +212,15 @@ When PONK data controls laser hardware, do not send decoded points directly to t
 cargo run --example roundtrip
 ```
 
+The two multicast examples accept an optional local interface IPv4 address:
+
+```sh
+cargo run --example receive_reassemble -- 192.168.1.20
+cargo run --example send_multicast -- 192.168.1.20
+```
+
+Omit the address to let the operating system choose the interface. Pass an interface's own address to pin multicast to it — useful on Windows, where a Wi-Fi interface is often not selected by default and multicast otherwise never crosses the WLAN. Socket ownership stays with the application, so interface selection is an application-level policy shown in the examples rather than part of the codec.
+
 ## Minimum supported Rust version
 
 The minimum supported Rust version (MSRV) is Rust **1.88**. CI checks both stable Rust and Rust 1.88. An MSRV increase requires a documented minor-version change while the crate is pre-1.0.

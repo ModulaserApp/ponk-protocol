@@ -4,6 +4,10 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+### Changed
+
+- The `send_multicast` and `receive_reassemble` examples accept an optional local interface IPv4 address, pinning multicast egress and group membership to a chosen interface. This works around default-interface selection failing over Wi-Fi on Windows. Interface selection stays an application-level policy in the examples; the codec is unchanged.
+
 ## [0.2.0] - 2026-07-13
 
 ### Added
