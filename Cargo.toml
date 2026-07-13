@@ -1,0 +1,33 @@
+[package]
+name = "ponk-protocol"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Zero-dependency Rust codec and bounded reassembler for the PONK laser-path protocol"
+authors = ["Modulaser Team <info@modulaser.app>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ModulaserApp/ponk-protocol"
+homepage = "https://github.com/ModulaserApp/ponk-protocol"
+documentation = "https://docs.rs/ponk-protocol"
+keywords = ["ponk", "laser", "multicast", "protocol", "udp"]
+categories = ["encoding", "multimedia", "network-programming"]
+include = [
+    "/src/**",
+    "/examples/**",
+    "/Cargo.toml",
+    "/README.md",
+    "/LICENSE",
+    "/NOTICE",
+    "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+    "/SECURITY.md",
+    "/CODE_OF_CONDUCT.md",
+]
+
+[dependencies]
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[workspace]

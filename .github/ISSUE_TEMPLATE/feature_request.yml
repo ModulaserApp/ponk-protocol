@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose a focused protocol or API improvement
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Interoperability or API problem
+      description: Describe the concrete use case that the current public API cannot handle.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include the public seam, expected errors, wire evidence, and resource bounds.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Explain why application-side code or the existing API is insufficient.
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Project constraints
+      options:
+        - label: The proposal can preserve bounded handling of untrusted input.
+          required: true
+        - label: I have identified any effect on zero dependencies and MSRV.
+          required: true

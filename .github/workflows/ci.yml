@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  quality:
+    name: Stable quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install stable Rust
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Check formatting
+        run: cargo +stable fmt --all --check
+      - name: Check all targets
+        run: cargo +stable check --all-targets
+      - name: Test all targets
+        run: cargo +stable test --all-targets
+      - name: Test documentation
+        run: cargo +stable test --doc
+      - name: Lint
+        run: cargo +stable clippy --all-targets -- -D warnings
+      - name: Build warning-free documentation
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo +stable doc --no-deps
+      - name: Validate package contents
+        run: cargo +stable package
+      - name: Validate publish package without uploading
+        run: cargo +stable publish --dry-run
+
+  msrv:
+    name: MSRV 1.88
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install Rust 1.88
+        run: rustup toolchain install 1.88.0 --profile minimal
+      - name: Check all targets
+        run: cargo +1.88.0 check --all-targets
+      - name: Test all targets
+        run: cargo +1.88.0 test --all-targets
+      - name: Test documentation
+        run: cargo +1.88.0 test --doc
+
+  cross-platform:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Install stable Rust
+        run: rustup toolchain install stable --profile minimal
+      - name: Check all targets
+        run: cargo +stable check --all-targets
+      - name: Test all targets
+        run: cargo +stable test --all-targets

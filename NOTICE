@@ -1,0 +1,21 @@
+ponk-protocol
+=============
+
+Copyright (c) 2026 RS Product Studio B.V.
+
+This crate is an independent Rust implementation of the PONK ("Pathes Over
+NetworK") UDP wire format, published by the Modulaser project for
+interoperability.
+
+The PONK protocol was created and published by MadMapper / GarageCube. Its
+canonical public repository is:
+
+    https://github.com/madmappersoftware/Ponk
+
+Modulaser and ponk-protocol are not affiliated with, sponsored by, or endorsed
+by MadMapper or GarageCube. “PONK” and “MadMapper” are used descriptively to
+identify the protocol and products with which this crate interoperates. All
+third-party names and marks belong to their respective owners.
+
+This notice does not alter the MIT License covering the ponk-protocol
+implementation. See LICENSE.

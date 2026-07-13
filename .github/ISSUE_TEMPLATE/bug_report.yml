@@ -1,0 +1,58 @@
+name: Bug report
+description: Report incorrect encoding, decoding, reassembly, or documentation
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not report security vulnerabilities here. Follow SECURITY.md instead.
+  - type: input
+    id: version
+    attributes:
+      label: Version or revision
+      description: Crate version or full Git commit SHA.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Encoding
+        - Stateless decoding
+        - Multipart reassembly
+        - Resource limits
+        - Wire compatibility
+        - Documentation or examples
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: Include the exact error and a minimal datagram/frame reproducer when possible. Remove credentials and private network data.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: State the expected public API result or independently verified wire behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Rust version, operating system, target, and relevant peer implementation.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I confirmed this report does not contain a security vulnerability.
+          required: true
+        - label: I searched existing issues for the same behavior.
+          required: true
