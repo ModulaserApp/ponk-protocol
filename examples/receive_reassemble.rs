@@ -1,4 +1,4 @@
-//! Join the PONK multicast group and reassemble incoming frames.
+//! Join the PONK multicast group and reassemble incoming mixed-format frames.
 //!
 //! Run with: `cargo run --example receive_reassemble`
 //!
@@ -16,21 +16,28 @@ fn main() -> std::io::Result<()> {
     socket.join_multicast_v4(&group, &Ipv4Addr::UNSPECIFIED)?;
     println!("listening for PONK on {group}:{DEFAULT_PORT} — Ctrl-C to stop");
 
-    // Cap in-progress assemblies so untrusted senders cannot exhaust memory.
+    // Strict mode is the default. Configure sender-specific canonical boundary
+    // repair only when the application knows that a sender needs it.
     let mut assembler = PonkAssembler::with_max_assemblies(64);
     let mut buffer = [0u8; RECV_BUFFER_SIZE];
 
     loop {
         let (len, peer): (usize, SocketAddr) = socket.recv_from(&mut buffer)?;
-        match assembler.push_datagram(&buffer[..len], peer) {
-            Ok(Some(frame)) => {
-                let points: usize = frame.paths.iter().map(|p| p.points.len()).sum();
+        match assembler.push_wire_datagram(&buffer[..len], peer) {
+            Ok(Some(completed)) => {
+                let points: usize = completed
+                    .frame
+                    .paths
+                    .iter()
+                    .map(|path| path.points.len())
+                    .sum();
                 println!(
-                    "frame from {:?} (id {}): {} path(s), {} point(s)",
-                    frame.sender_name,
-                    frame.sender_id,
-                    frame.paths.len(),
+                    "frame from {:?} (id {}): {} path(s), {} point(s), {:?}",
+                    completed.frame.sender_name,
+                    completed.frame.sender_id,
+                    completed.frame.paths.len(),
                     points,
+                    completed.completion,
                 );
             }
             Ok(None) => {}

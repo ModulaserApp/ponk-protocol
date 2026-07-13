@@ -1,6 +1,6 @@
 [package]
 name = "ponk-protocol"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.88"
 description = "Zero-dependency Rust codec and bounded reassembler for the PONK laser-path protocol"
@@ -15,6 +15,7 @@ categories = ["encoding", "multimedia", "network-programming"]
 include = [
     "/src/**",
     "/examples/**",
+    "/tests/**",
     "/Cargo.toml",
     "/README.md",
     "/LICENSE",
