@@ -5,11 +5,11 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![MSRV 1.88](https://img.shields.io/badge/MSRV-1.88-orange.svg)](#minimum-supported-rust-version)
 
-`ponk-protocol` is a zero-dependency Rust codec and bounded fragment reassembler for PONK ("Pathes Over NetworK") UDP laser-path frames. It converts typed frames to datagrams, decodes complete single-datagram frames, and reassembles multipart frames from untrusted network traffic. Socket ownership and I/O remain with the application.
+`ponk-protocol` is a zero-dependency Rust codec and bounded fragment reassembler for PONK ("Pathes Over NetworK") UDP frames containing ordered 2D paths of colored points. It converts typed frames to datagrams, decodes complete single-datagram frames, and reassembles multipart frames from untrusted network traffic. Socket ownership and I/O remain with the application.
 
 ## Protocol scope and attribution
 
-PONK carries ordered paths of colored points over UDP, conventionally through multicast group `239.255.10.24` on port `5583`. The protocol was created and published by MadMapper / GarageCube. Its canonical public repository is [`madmappersoftware/Ponk`](https://github.com/madmappersoftware/Ponk).
+PONK carries ordered 2D paths of colored points over UDP, conventionally through multicast group `239.255.10.24` on port `5583`. It was originally developed to transfer laser paths between applications, but its wire format does not define laser hardware, scanning, or rendering behavior. The protocol was created and published by MadMapper / GarageCube. Its canonical public repository is [`madmappersoftware/Ponk`](https://github.com/madmappersoftware/Ponk).
 
 This crate is an independent Rust implementation published by the Modulaser project for interoperability. Modulaser and this crate are not affiliated with, sponsored by, or endorsed by MadMapper or GarageCube. The names “PONK” and “MadMapper” identify the protocol and products with which this crate interoperates. See [NOTICE](./NOTICE).
 
@@ -87,7 +87,7 @@ let peer = SocketAddr::from((Ipv4Addr::LOCALHOST, 5583));
 
 for datagram in &datagrams {
     if let Some(frame) = assembler.push_datagram(datagram, peer)? {
-        // Apply application validation and hand the frame to a safe renderer.
+        // Use the frame only after application-specific validation.
         let _ = frame;
     }
 }
@@ -119,11 +119,11 @@ The decoder distinguishes traffic that should be ignored from malformed PONK inp
 
 `PonkAssembler` accepts out-of-order chunks. A new frame identity for the same `(peer address, sender ID)` replaces that sender's incomplete assembly. When configured capacity is reached, the oldest incomplete assembly is evicted.
 
-## Laser-safety scope
+## Application responsibilities
 
-This crate validates the wire representation and bounds parser/reassembly resources. It does **not** implement laser arming, output blanking, scanner velocity or acceleration limits, dwell/energy limits, projection zones, coordinate mapping, DAC timing, or hardware fault handling.
+This crate validates the wire representation and bounds parser/reassembly resources. It does not assign application semantics to decoded paths or decide whether received geometry is safe to render or use for device control. Applications must treat every decoded frame as untrusted content and apply validation appropriate to their use case.
 
-Do not send decoded points directly to laser hardware. A laser application must treat every decoded frame as untrusted content and pass it through a non-bypassable, fail-dark hardware safety pipeline.
+When PONK data controls laser hardware, do not send decoded points directly to the device. Pass every frame through a non-bypassable, fail-dark safety pipeline that enforces arming, output blanking, scanner velocity and acceleration limits, dwell and energy limits, projection zones, coordinate mapping, DAC timing, and hardware fault handling.
 
 ## Examples
 
